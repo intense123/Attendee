@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:convert';
 
@@ -22,6 +24,12 @@ Future<bool> checkConnectionForSend() async {
   return isTargetDeviceConnected;
 }
 
+const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+Random _rnd = Random();
+
+String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
 Future<bool> writeData(String data, Rx<String> debugData) async {
   bool isDeviceConnected = await checkConnectionForSend();
   if (isDeviceConnected) {
@@ -34,6 +42,7 @@ Future<bool> writeData(String data, Rx<String> debugData) async {
               in service.characteristics) {
             if (characteristic.uuid.toString().toLowerCase() ==
                 characteristicUuid.toString().toLowerCase()) {
+              data = getRandomString(5) + data;
               List<int> bytes = utf8.encode(data);
               await characteristic.write(bytes);
               return true;
